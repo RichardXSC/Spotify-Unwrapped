@@ -8,7 +8,7 @@
  */
 
 export const CLIENT_ID = "a8e6a5e75f584d9a906c541ad968af34";
-export const REDIRECT_URI = new URL("/callback.html", window.location.origin).toString();
+export const REDIRECT_URI = new URL("/index.html", window.location.origin).toString();
 
 const SPOTIFY_AUTH_BASE = "https://accounts.spotify.com";
 
