@@ -1,4 +1,4 @@
-import { beginLogin, clearAuthStorage, getValidAccessToken } from "./auth.js";
+import { beginLogin, clearAuthStorage, exchangeCodeForToken, getValidAccessToken } from "./auth.js";
 
 /**
  * Dashboard logic:
@@ -50,6 +50,46 @@ function setLoading(isLoading) {
 function setAuthenticatedView(isAuthenticated) {
   ui.loginView.hidden = isAuthenticated;
   ui.appView.hidden = !isAuthenticated;
+}
+
+/**
+ * Handles Spotify redirect parameters (?code=...&state=...) directly on index.html.
+ * This makes the app resilient even if a separate callback.html route is mis-deployed.
+ */
+async function handleOAuthRedirectIfPresent() {
+  const url = new URL(window.location.href);
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+  const error = url.searchParams.get("error");
+
+  if (!code && !state && !error) return false;
+
+  clearError();
+  setLoading(true);
+
+  try {
+    if (error) {
+      throw new Error(`Spotify login error: ${error}`);
+    }
+
+    if (!code || !state) {
+      throw new Error("Missing OAuth parameters. Please try connecting again.");
+    }
+
+    await exchangeCodeForToken({ code, stateFromUrl: state });
+    url.searchParams.delete("code");
+    url.searchParams.delete("state");
+    url.searchParams.delete("error");
+    window.history.replaceState({}, document.title, url.toString());
+    return true;
+  } catch (e) {
+    clearAuthStorage();
+    setAuthenticatedView(false);
+    showError(e instanceof Error ? e.message : "Login failed. Please try again.");
+    return true;
+  } finally {
+    setLoading(false);
+  }
 }
 
 function sleep(ms) {
@@ -331,6 +371,15 @@ function wireEvents() {
 
 async function boot() {
   wireEvents();
+
+  const handled = await handleOAuthRedirectIfPresent();
+  if (handled) {
+    const accessTokenAfterLogin = await getValidAccessToken();
+    setAuthenticatedView(Boolean(accessTokenAfterLogin));
+    if (accessTokenAfterLogin) loadDashboardAll();
+    return;
+  }
+
   const accessToken = await getValidAccessToken();
   setAuthenticatedView(Boolean(accessToken));
   if (accessToken) {
