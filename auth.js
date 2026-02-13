@@ -7,9 +7,8 @@
  * - When expired, the app re-auths (or attempts refresh token flow if available).
  */
 
-export const CLIENT_ID = "a8e6a5e75f584d9a906c541ad968af34";
-
-export const REDIRECT_URI = "https://spotify-unwrapped-three.vercel.app/callback.html";
+export const CLIENT_ID = "CLIENT_ID";
+export const REDIRECT_URI = new URL("/callback.html", window.location.origin).toString();
 
 const SPOTIFY_AUTH_BASE = "https://accounts.spotify.com";
 
@@ -71,6 +70,13 @@ async function pkceChallengeFromVerifier(verifier) {
 export async function beginLogin() {
   if (CLIENT_ID === "CLIENT_ID") {
     throw new Error("Set CLIENT_ID in auth.js before using the app.");
+  }
+
+  const isHttps = window.location.protocol === "https:";
+  const isLocalhost =
+    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  if (!isHttps && !isLocalhost) {
+    throw new Error("Spotify login requires HTTPS (or localhost for development).");
   }
 
   const verifier = randomString(64);
