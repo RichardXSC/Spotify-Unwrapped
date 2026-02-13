@@ -8,7 +8,9 @@
  */
 
 export const CLIENT_ID = "a8e6a5e75f584d9a906c541ad968af34";
-export const REDIRECT_URI = new URL("/index.html", window.location.origin).toString();
+
+export const APP_ORIGIN = "https://spotify-unwrapped-three.vercel.app";
+export const REDIRECT_URI = `${APP_ORIGIN}/index.html`;
 
 const SPOTIFY_AUTH_BASE = "https://accounts.spotify.com";
 
@@ -77,6 +79,10 @@ export async function beginLogin() {
     window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
   if (!isHttps && !isLocalhost) {
     throw new Error("Spotify login requires HTTPS (or localhost for development).");
+  }
+
+  if (!isLocalhost && window.location.origin !== APP_ORIGIN) {
+    throw new Error(`Open the app on ${APP_ORIGIN} so Spotify redirect URIs match.`);
   }
 
   const verifier = randomString(64);
