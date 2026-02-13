@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Spotify UNwrapped — Callback</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="panel panel--center">
+        <div class="brand">
+          <div class="brand__mark" aria-hidden="true"></div>
+          <h1 class="brand__title">Spotify UNwrapped</h1>
+        </div>
+        <div id="callbackStatus" class="loading">
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="loading__text">Finishing sign-in…</div>
+        </div>
+        <p id="callbackError" class="error" role="alert" aria-live="polite" hidden></p>
+      </section>
+    </main>
+
+    <script type="module" src="./callback.js"></script>
+  </body>
+</html>

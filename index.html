@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Spotify UNwrapped</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <div class="brand">
+          <div class="brand__mark" aria-hidden="true"></div>
+          <h1 class="brand__title">Spotify UNwrapped</h1>
+        </div>
+        <p class="brand__subtitle">Always Wrapped-style stats, powered by your Spotify data.</p>
+      </header>
+
+      <section id="errorArea" class="error" role="alert" aria-live="polite" hidden></section>
+
+      <section id="loginView" class="panel panel--center">
+        <button id="connectBtn" class="btn btn--primary" type="button">Connect Spotify</button>
+        <p class="muted">
+          Your data is processed entirely in your browser. Nothing is sent to any server.
+        </p>
+      </section>
+
+      <section id="appView" class="panel" hidden>
+        <div class="toolbar">
+          <div class="user">
+            <img
+              id="userAvatar"
+              class="user__avatar"
+              alt="Spotify profile picture"
+              width="48"
+              height="48"
+              loading="lazy"
+            />
+            <div class="user__meta">
+              <div class="user__name" id="userName">—</div>
+              <div class="muted user__hint">Signed in with Spotify</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <label class="field">
+              <span class="field__label">Time Range</span>
+              <select id="timeRange" class="select">
+                <option value="short_term">Last 4 weeks</option>
+                <option value="medium_term" selected>Last 6 months</option>
+                <option value="long_term">All time</option>
+              </select>
+            </label>
+
+            <button id="refreshBtn" class="btn btn--ghost" type="button">Refresh</button>
+            <button id="logoutBtn" class="btn btn--danger" type="button">Logout</button>
+          </div>
+        </div>
+
+        <div id="loading" class="loading" hidden>
+          <div class="spinner" aria-hidden="true"></div>
+          <div class="loading__text">Loading your stats…</div>
+        </div>
+
+        <section class="grid">
+          <article class="card">
+            <h2 class="card__title">Top Tracks</h2>
+            <ol id="topTracks" class="list"></ol>
+          </article>
+
+          <article class="card">
+            <h2 class="card__title">Top Artists</h2>
+            <ol id="topArtists" class="list"></ol>
+          </article>
+
+          <article class="card">
+            <h2 class="card__title">Recently Played</h2>
+            <ol id="recentTracks" class="list"></ol>
+          </article>
+
+          <article class="card">
+            <h2 class="card__title">Estimated Minutes Listened</h2>
+            <div class="bigStat">
+              <div id="minutesListened" class="bigStat__value">—</div>
+              <div class="muted">Based on the 10 most recent plays</div>
+            </div>
+          </article>
+
+          <article class="card card--wide">
+            <h2 class="card__title">Genre Breakdown</h2>
+            <div class="muted card__subtitle">From your top artists in the selected time range</div>
+            <div id="genreBreakdown" class="chips"></div>
+          </article>
+        </section>
+
+        <footer class="footer">
+          <div class="muted">
+            Built with HTML, CSS, and Vanilla JS. Runs fully client-side.
+          </div>
+        </footer>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

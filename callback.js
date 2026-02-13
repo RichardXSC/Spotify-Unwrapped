@@ -1,0 +1,44 @@
+import { exchangeCodeForToken } from "./auth.js";
+
+/**
+ * OAuth redirect landing page.
+ * Parses ?code=...&state=... and exchanges it for access/refresh tokens.
+ */
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function setError(message) {
+  const el = $("callbackError");
+  el.textContent = message;
+  el.hidden = false;
+  $("callbackStatus").hidden = true;
+}
+
+async function run() {
+  const params = new URLSearchParams(window.location.search);
+
+  const error = params.get("error");
+  if (error) {
+    setError(`Spotify login error: ${error}`);
+    return;
+  }
+
+  const code = params.get("code");
+  const state = params.get("state");
+
+  if (!code || !state) {
+    setError("Missing OAuth parameters. Please go back and try again.");
+    return;
+  }
+
+  try {
+    await exchangeCodeForToken({ code, stateFromUrl: state });
+    window.location.replace("./index.html");
+  } catch (e) {
+    setError(e instanceof Error ? e.message : "Login failed. Please try again.");
+  }
+}
+
+run();
