@@ -118,19 +118,28 @@ async function apiFetch(path, accessToken, { method = "GET", body } = {}) {
 
     if (res.status === 204) return null;
 
-    const json = await res.json().catch(() => null);
+    const contentType = res.headers.get("content-type") || "";
+    const isJson = contentType.includes("application/json");
+    const payload = isJson ? await res.json().catch(() => null) : await res.text().catch(() => "");
     if (!res.ok) {
-      const msg =
-        json?.error?.message ||
-        json?.error_description ||
-        json?.error ||
-        `Spotify API error (${res.status}).`;
+      const msgFromJson =
+        payload?.error?.message || payload?.error_description || payload?.error || null;
+      const msgFromText = typeof payload === "string" && payload.trim() ? payload.trim() : null;
+      let msg = msgFromJson || msgFromText || `Spotify API error (${res.status}).`;
+
+      if (res.status === 403) {
+        msg =
+          `${msg} ` +
+          `Common fixes: (1) If your Spotify app is in Development Mode, add your Spotify account under “Users and Access”. ` +
+          `(2) Re-login after changing app settings.`;
+      }
+
       const err = new Error(msg);
       err.status = res.status;
       throw err;
     }
 
-    return json;
+    return payload;
   }
 
   throw new Error("Spotify API is rate limiting requests. Please try again.");
