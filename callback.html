@@ -1,8 +1,8 @@
-import { exchangeCodeForToken } from "./auth.js";
-
 /**
  * OAuth redirect landing page.
- * Parses ?code=...&state=... and exchanges it for access/refresh tokens.
+ *
+ * This page forwards the OAuth query string to index.html where the app
+ * exchanges the authorization code for tokens.
  */
 
 function $(id) {
@@ -17,28 +17,8 @@ function setError(message) {
 }
 
 async function run() {
-  const params = new URLSearchParams(window.location.search);
-
-  const error = params.get("error");
-  if (error) {
-    setError(`Spotify login error: ${error}`);
-    return;
-  }
-
-  const code = params.get("code");
-  const state = params.get("state");
-
-  if (!code || !state) {
-    window.location.replace("./index.html");
-    return;
-  }
-
-  try {
-    await exchangeCodeForToken({ code, stateFromUrl: state });
-    window.location.replace("./index.html");
-  } catch (e) {
-    setError(e instanceof Error ? e.message : "Login failed. Please try again.");
-  }
+  const qs = window.location.search || "";
+  window.location.replace(`./index.html${qs}`);
 }
 
 run();
