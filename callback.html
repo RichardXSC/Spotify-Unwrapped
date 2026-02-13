@@ -1,27 +1,44 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <title>Spotify UNwrapped — Callback</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <main class="container">
-      <section class="panel panel--center">
-        <div class="brand">
-          <div class="brand__mark" aria-hidden="true"></div>
-          <h1 class="brand__title">Spotify UNwrapped</h1>
-        </div>
-        <div id="callbackStatus" class="loading">
-          <div class="spinner" aria-hidden="true"></div>
-          <div class="loading__text">Finishing sign-in…</div>
-        </div>
-        <p id="callbackError" class="error" role="alert" aria-live="polite" hidden></p>
-      </section>
-    </main>
+import { exchangeCodeForToken } from "./auth.js";
 
-    <script type="module" src="./callback.js"></script>
-  </body>
-</html>
+/**
+ * OAuth redirect landing page.
+ * Parses ?code=...&state=... and exchanges it for access/refresh tokens.
+ */
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function setError(message) {
+  const el = $("callbackError");
+  el.textContent = message;
+  el.hidden = false;
+  $("callbackStatus").hidden = true;
+}
+
+async function run() {
+  const params = new URLSearchParams(window.location.search);
+
+  const error = params.get("error");
+  if (error) {
+    setError(`Spotify login error: ${error}`);
+    return;
+  }
+
+  const code = params.get("code");
+  const state = params.get("state");
+
+  if (!code || !state) {
+    window.location.replace("./index.html");
+    return;
+  }
+
+  try {
+    await exchangeCodeForToken({ code, stateFromUrl: state });
+    window.location.replace("./index.html");
+  } catch (e) {
+    setError(e instanceof Error ? e.message : "Login failed. Please try again.");
+  }
+}
+
+run();
